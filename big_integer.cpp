@@ -10,12 +10,21 @@ template<typename Transformer, std::size_t radix,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, typename BaseType>
 struct BigInteger<Transformer, radix, Container, BaseType>::Impl {
     bool sign{true};
+    bool is_zero{false};
     Container<BaseType> digits{};
 };
 
 template<typename Transformer, std::size_t radix,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, typename BaseType>
 BigInteger<Transformer, radix, Container, BaseType>::BigInteger(int number) : pImpl(std::make_unique<Impl>()) {
+    if (number == 0) {
+        pImpl->is_zero = true;
+        return;
+    }
+    if (number < 0) {
+        number = -number;
+        pImpl->sign = false;
+    }
     while (number) {
         pImpl->digits.push_back(number % radix);
         number /= radix;
@@ -25,6 +34,14 @@ BigInteger<Transformer, radix, Container, BaseType>::BigInteger(int number) : pI
 template<typename Transformer, std::size_t radix,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, typename BaseType>
 BigInteger<Transformer, radix, Container, BaseType>::BigInteger(long long number) : pImpl(std::make_unique<Impl>()) {
+    if (number == 0) {
+        pImpl->is_zero = true;
+        return;
+    }
+    if (number < 0) {
+        number = -number;
+        pImpl->sign = false;
+    }
     while (number) {
         pImpl->digits.push_back(number % radix);
         number /= radix;
@@ -34,6 +51,14 @@ BigInteger<Transformer, radix, Container, BaseType>::BigInteger(long long number
 template<typename Transformer, std::size_t radix,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, typename BaseType>
 BigInteger<Transformer, radix, Container, BaseType>::BigInteger(long number) : pImpl(std::make_unique<Impl>()) {
+    if (number == 0) {
+        pImpl->is_zero = true;
+        return;
+    }
+    if (number < 0) {
+        number = -number;
+        pImpl->sign = false;
+    }
     while (number) {
         pImpl->digits.push_back(number % radix);
         number /= radix;
@@ -73,7 +98,9 @@ template<typename Transformer, std::size_t radix,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, typename BaseType>
 BigInteger<Transformer, radix, Container, BaseType>
 BigInteger<Transformer, radix, Container, BaseType>::operator*(const BigInteger &rhs) const {
-    auto resInt = BigInteger{};
+    auto resInt = BigInteger{0};
+    if (pImpl->is_zero || rhs.pImpl->is_zero) return resInt;
+    else resInt.pImpl->is_zero = false;
     resInt.pImpl->digits
             = pTransformer->process(
             pImpl->digits, rhs.pImpl->digits); //do the transformation
@@ -92,6 +119,7 @@ BigInteger<Transformer, radix, Container, BaseType>::operator*(const BigInteger 
         resInt.pImpl->digits.push_back(temp % radix);
         temp /= radix;
     }
+    resInt.pImpl->sign = pImpl->sign == rhs.pImpl->sign;
     return resInt;
 }
 
@@ -99,6 +127,7 @@ template<typename Transformer, std::size_t radix,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, typename BaseType>
 std::string
 BigInteger<Transformer, radix, Container, BaseType>::to_string() const {
+    if (pImpl->is_zero) return "0";
     //TODO : CACHE RADIX ZERO FILLER NUMBER
     size_t t = 0, r = radix;
     while (r) { t++, r /= 10; }
@@ -111,10 +140,10 @@ BigInteger<Transformer, radix, Container, BaseType>::to_string() const {
             temp += '0' + (num % 10);
             num /= 10;
         }
-        while (buffer.size() && temp.size() < t) temp += '0';
-        for (auto j = temp.begin(), u = temp.end(); j < u; ++j) {
+        while (!buffer.empty() && temp.size() < t) temp += "0";
+        for (auto j = temp.rbegin(), u = temp.rend(); j < u; ++j) {
             buffer += *j;
         }
     }
-    return buffer;
+    return pImpl->sign ? buffer : "-" + buffer;
 }
