@@ -1,8 +1,8 @@
 //
 // Created by Jimmy on 2019/1/19.
 //
-
 #include "transformer.h"
+#include <algorithm>
 
 template<typename DataType,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container>
@@ -15,6 +15,26 @@ template<typename DataType,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container>
 void Transformer<DataType, Container>::initialize_omegas(const size_t &n) {
     throw std::runtime_error("virtual transformer is called");
+}
+
+template<typename DataType,
+        template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container>
+Container<DataType> Transformer<DataType, Container>::process
+        (const Container<DataType> &a1, const Container<DataType> &a2) {
+    size_t n1 = a1.size();
+    size_t n2 = a2.size();
+    size_t n = n1 + n2;
+    auto res = Container<DataType>(n);
+    for (size_t i = 0; i < n; ++i) {
+        size_t j = 0, l = i, tj = std::min(i, n1 - 1);
+        while (j <= tj && l != -1) {
+            if (l < n2)
+                res[i] = j == 0 ? a1[j] * a2[l] : res[i] + a1[j] * a2[l];
+            j++;
+            l--;
+        }
+    }
+    return res;
 }
 
 template<typename DataType,
@@ -46,8 +66,29 @@ void FFTTransformer<DataType, Container>::transform
         }
     }
     if (type == Operation::INVERSE) {
-        for (auto& i : a) {i /= n;}
+        for (auto &i : a) { i /= n; }
     }
+}
+
+template<typename DataType, template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container>
+template<class BaseType>
+Container<BaseType> FFTTransformer<DataType, Container>::
+process(const Container<BaseType> &a1, const Container<BaseType> &a2) {
+    size_t n1 = a1.size();
+    size_t n2 = a2.size();
+    size_t n = 1;
+    while (n < n1 + n2) n <<= 1;
+    auto res = Container<BaseType>(n);
+    static Container<DataType> c1(n), c2(n); // TODO: space management
+    for (int i = 0; i < n1; i++) c1[i].real(a1[i]);
+    for (int i = 0; i < n2; i++) c2[i].real(a2[i]);
+    initialize_omegas(n);
+    transform(c1, n, Operation::TRANSFORM);
+    transform(c2, n, Operation::TRANSFORM);
+    for (int i = 0; i < n; i++) c1[i] *= c2[i];
+    transform(c1, n, Operation::INVERSE);
+    for (int i = 0; i < n1 + n2 - 1; i++) res[i] = static_cast<BaseType>(c1[i].real());
+    return res;
 }
 
 template<typename DataType,
@@ -109,7 +150,7 @@ void NTTTransformer<DataType, Container, MOD>::__exgcd(const DataType &a, const 
 template<typename DataType,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, DataType MOD>
 constexpr DataType NTTTransformer<DataType, Container, MOD>::__inv(const DataType &a, const DataType &p) noexcept {
-    DataType g{}, x{}, y {};
+    DataType g{}, x{}, y{};
     __exgcd(a, p, g, x, y);
     return (x + p) % p;
 }
@@ -148,6 +189,28 @@ void NTTTransformer<DataType, Container, MOD>::transform(Container<DataType> &a,
     }
     if (type == Operation::INVERSE) {
         auto x = __inv(n, MOD);
-        for (auto& i : a) i = __multiply(i, x, MOD);
+        for (auto &i : a) i = __multiply(i, x, MOD);
     }
+}
+
+template<typename DataType,
+        template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, DataType MOD>
+template<class BaseType>
+Container<DataType>
+NTTTransformer<DataType, Container, MOD>::process(const Container<BaseType> &a1, const Container<BaseType> &a2) {
+    size_t n1 = a1.size();
+    size_t n2 = a2.size();
+    size_t n = 1;
+    while (n < n1 + n2) n <<= 1;
+    auto res = Container<BaseType>(n);
+    static Container<DataType> c1(n), c2(n); // TODO: space management
+    for (int i = 0; i < n1; i++) c1[i] = static_cast<DataType>(a1[i]);
+    for (int i = 0; i < n2; i++) c2[i] = static_cast<DataType>(a2[i]);
+    initialize_omegas(n);
+    transform(c1, n, Operation::TRANSFORM);
+    transform(c2, n, Operation::TRANSFORM);
+    for (int i = 0; i < n; i++) (c1[i] *= c2[i]) %= MOD;
+    transform(c1, n, Operation::INVERSE);
+    for (int i = 0; i < n1 + n2 - 1; i++) res[i] = static_cast<BaseType>(c1[i]);
+    return res;
 }
