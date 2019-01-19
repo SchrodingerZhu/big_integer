@@ -16,14 +16,27 @@ struct BigInteger<Transformer, radix, Container, BaseType>::Impl {
 template<typename Transformer, std::size_t radix,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, typename BaseType>
 BigInteger<Transformer, radix, Container, BaseType>::BigInteger(int number) : pImpl(std::make_unique<Impl>()) {
-    std::stack<BaseType> temp;
     while (number) {
-        temp.push(number % radix);
+        pImpl->digits.push_back(number % radix);
         number /= radix;
     }
-    while (!temp.empty()) {
-        pImpl->digits.push_back(temp.top());
-        temp.pop();
+}
+
+template<typename Transformer, std::size_t radix,
+        template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, typename BaseType>
+BigInteger<Transformer, radix, Container, BaseType>::BigInteger(long long number) : pImpl(std::make_unique<Impl>()) {
+    while (number) {
+        pImpl->digits.push_back(number % radix);
+        number /= radix;
+    }
+}
+
+template<typename Transformer, std::size_t radix,
+        template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, typename BaseType>
+BigInteger<Transformer, radix, Container, BaseType>::BigInteger(long number) : pImpl(std::make_unique<Impl>()) {
+    while (number) {
+        pImpl->digits.push_back(number % radix);
+        number /= radix;
     }
 }
 template<typename Transformer, std::size_t radix,
@@ -64,8 +77,10 @@ BigInteger<Transformer, radix, Container, BaseType>::operator*(const BigInteger 
     resInt.pImpl->digits
             = pTransformer->process(
             pImpl->digits, rhs.pImpl->digits); //do the transformation
+    while (resInt.pImpl->digits.back() == 0)
+        resInt.pImpl->digits.pop_back();
     BaseType temp = 0;
-    for (auto i = resInt.pImpl->digits.rbegin(), t = resInt.pImpl->digits.rend(); i < t; ++i) {
+    for (auto i = resInt.pImpl->digits.begin(), t = resInt.pImpl->digits.end(); i < t; ++i) {
         *i += temp;
         temp = 0;
         if (*i >= radix) {
@@ -73,23 +88,10 @@ BigInteger<Transformer, radix, Container, BaseType>::operator*(const BigInteger 
             *i %= radix;
         }
     }
-    size_t t = 0;
-    auto m = temp;
-    while (m) {
-        t++;
-        m /= radix;
-    } //handle radix
-
-    if (t) {
-        resInt.pImpl->digits.resize(resInt.pImpl->digits.size() + t);
-        std::copy(resInt.pImpl->digits.begin(), resInt.pImpl->digits.end(), resInt.pImpl->digits.begin() + t);
-        while (temp) {
-            resInt.pImpl->digits[--t] = temp % radix;
-            temp /= radix;
-        }
-    } //handle exceeded position
-    while (resInt.pImpl->digits.back() > pImpl->digits.back() + rhs.pImpl->digits.back())
-        resInt.pImpl->digits.pop_back();
+    while (temp) {
+        resInt.pImpl->digits.push_back(temp % radix);
+        temp /= radix;
+    }
     return resInt;
 }
 
@@ -102,7 +104,7 @@ BigInteger<Transformer, radix, Container, BaseType>::to_string() const {
     while (r) { t++, r /= 10; }
     --t;
     std::string buffer{};
-    for (auto i = pImpl->digits.begin(), ti = pImpl->digits.end(); i < ti; ++i) {
+    for (auto i = pImpl->digits.rbegin(), ti = pImpl->digits.rend(); i < ti; ++i) {
         std::string temp{};
         auto num = *i;
         while (num) {
@@ -110,7 +112,7 @@ BigInteger<Transformer, radix, Container, BaseType>::to_string() const {
             num /= 10;
         }
         while (buffer.size() && temp.size() < t) temp += '0';
-        for (auto j = temp.rbegin(), u = temp.rend(); j < u; ++j) {
+        for (auto j = temp.begin(), u = temp.end(); j < u; ++j) {
             buffer += *j;
         }
     }

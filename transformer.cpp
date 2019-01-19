@@ -80,14 +80,14 @@ process(const Container<BaseType> &a1, const Container<BaseType> &a2) {
     while (n < n1 + n2) n <<= 1;
     auto res = Container<BaseType>(n);
     static Container<DataType> c1(n), c2(n); // TODO: space management
-    for (int i = 0; i < n1; i++) c1[i].real(a1[i]);
-    for (int i = 0; i < n2; i++) c2[i].real(a2[i]);
+    for (auto i = n1 - 1; i != -1; i--) c1[i].real(a1[i]);
+    for (auto i = n2 - 1; i != -1; i--) c2[i].real(a2[i]);
     initialize_omegas(n);
     transform(c1, n, Operation::TRANSFORM);
     transform(c2, n, Operation::TRANSFORM);
-    for (int i = 0; i < n; i++) c1[i] *= c2[i];
+    for (size_t i = 0; i < n; i++) c1[i] *= c2[i];
     transform(c1, n, Operation::INVERSE);
-    for (int i = 0; i < n1 + n2 - 1; i++) res[i] = static_cast<BaseType>(c1[i].real());
+    for (size_t i = 0; i < n1 + n2 - 1; i++) res[i] = static_cast<BaseType>(c1[i].real() + 0.5);
     return res;
 
 }
@@ -205,13 +205,13 @@ NTTTransformer<DataType, Container, MOD>::process(const Container<BaseType> &a1,
     while (n < n1 + n2) n <<= 1;
     auto res = Container<BaseType>(n1 + n2);
     static Container<DataType> c1(n), c2(n); // TODO: space management
-    for (int i = 0; i < n1; i++) c1[i] = static_cast<DataType>(a1[i]);
-    for (int i = 0; i < n2; i++) c2[i] = static_cast<DataType>(a2[i]);
+    for (auto i = n1 - 1; i != -1; i--) c1[i] = static_cast<DataType>(a1[i]);
+    for (auto i = n2 - 1; i != -1; i--) c2[i] = static_cast<DataType>(a2[i]);
     initialize_omegas(n);
     transform(c1, n, Operation::TRANSFORM);
     transform(c2, n, Operation::TRANSFORM);
-    for (int i = 0; i < n; i++) (c1[i] *= c2[i]) %= MOD;
+    for (size_t i = 0; i < n; i++) (c1[i] *= c2[i]) %= MOD;
     transform(c1, n, Operation::INVERSE);
-    for (int i = 0; i < n1 + n2 - 1; i++) res[i] = static_cast<BaseType>(c1[i]);
+    for (size_t i = 0; i < n1 + n2 - 1; i++) res[i] = static_cast<BaseType>(c1[i]);
     return res;
 }

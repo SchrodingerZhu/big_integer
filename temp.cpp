@@ -37,9 +37,19 @@
 //    }
 //}
 int main(){
-    auto test = BigInteger<Transformer<>>(814743552);
-    auto test2 = BigInteger<Transformer<>>(100);
+    auto test = BigInteger<FFTTransformer<>>(233432445534200);
+    auto test2 = BigInteger<FFTTransformer<>>(3525412421300);
     auto res = test * test2;
 
+    auto wtest = BigInteger<Transformer<>>(233432445534200);
+    auto wtest2 = BigInteger<Transformer<>>(3525412421300);
+    auto wres = wtest * wtest2;
+
+    auto etest = BigInteger<NTTTransformer<>>(233432445534200);
+    auto etest2 = BigInteger<NTTTransformer<>>(3525412421300);
+    auto eres = etest * etest2;
+
+    std::cout << wres.to_string() << '\n';
     std::cout << res.to_string() << '\n';
+    std::cout << eres.to_string() << '\n';
 }

@@ -17,7 +17,9 @@ class BigInteger {
 public:
     BigInteger();
 
-    BigInteger(const long long &number);
+    BigInteger(long long number);
+
+    BigInteger(long number);
 
     BigInteger(int number);
 
