@@ -101,6 +101,8 @@ BigInteger<Transformer, radix, Container, BaseType>::operator*(const BigInteger 
     auto resInt = BigInteger{0};
     if (pImpl->is_zero || rhs.pImpl->is_zero) return resInt;
     else resInt.pImpl->is_zero = false;
+    if (pImpl->digits.size() == 1 && pImpl->digits.front() == 1) return {rhs};
+    else if (rhs.pImpl->digits.size() == 1 && rhs.pImpl->digits.front() == 1) return {*this};
     resInt.pImpl->digits
             = pTransformer->process(
             pImpl->digits, rhs.pImpl->digits); //do the transformation

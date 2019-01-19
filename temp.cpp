@@ -37,15 +37,15 @@
 //    }
 //}
 int main(){
-    auto test = BigInteger<FFTTransformer<>, 1000>(10010000);
+    auto test = BigInteger<FFTTransformer<>, 1000>(1);
     auto test2 = BigInteger<FFTTransformer<>, 1000>(121212);
     auto res = test * test2;
 
-    auto wtest = BigInteger<Transformer<>>(233432445534200);
+    auto wtest = BigInteger<Transformer<>>(1);
     auto wtest2 = BigInteger<Transformer<>>(-3525412421300);
     auto wres = wtest * wtest2;
 
-    auto etest = BigInteger<NTTTransformer<>, 100000>(35445);
+    auto etest = BigInteger<NTTTransformer<>, 100000>(1);
     auto etest2 = BigInteger<NTTTransformer<>, 100000>(-1020);
     auto eres = etest * etest2;
 
