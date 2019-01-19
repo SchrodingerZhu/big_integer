@@ -14,7 +14,7 @@
  * Notice that FFT's Container must be the same as the outer wrapper
  */
 
-template<typename DataType,
+template<typename DataType = int,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container = std::vector>
 class Transformer {
     Container<DataType> omegas[2]{{},
@@ -75,7 +75,7 @@ class NTTTransformer : public Transformer<DataType, Container> {
 
 public:
     template<class BaseType>
-    Container<DataType> process(const Container<BaseType> &a1, const Container<BaseType> &a2);
+    Container<BaseType> process(const Container<BaseType> &a1, const Container<BaseType> &a2);
 
 };
 

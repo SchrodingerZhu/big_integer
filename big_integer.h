@@ -4,21 +4,22 @@
 #include <cstddef>
 #include <memory>
 #include <vector>
-#include "transformer.h"
+#include "transformer.cpp"
 
-template<typename Transformer = NTTTransformer<>,
-        std::size_t radix = 4,
+template<typename Transformer = Transformer<>,
+        std::size_t radix = 10,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container = std::vector,
         typename BaseType = int>
 class BigInteger {
     struct Impl;
     std::unique_ptr<struct Impl> pImpl;
+    static const std::unique_ptr<Transformer> pTransformer;
 public:
     BigInteger();
 
     BigInteger(const long long &number);
 
-    BigInteger(const int &number);
+    BigInteger(int number);
 
     BigInteger(const short &number);
 
@@ -82,10 +83,10 @@ public:
 
     BigInteger operator~() const;
 
-    BigInteger slow_multiply(const BigInteger &rhs) const;
-
     bool is_negative() const noexcept;
     // BigInteger approx_sqrt() const noexcept;
+
+    std::string to_string() const;
 
 };
 

@@ -5,8 +5,8 @@
 #include <iostream>
 #include <vector>
 #include <deque>
-#include "transformer.cpp"
-
+#include "big_integer.h"
+#include "big_integer.cpp"
 //inline void multiply(std::deque<int>& a1, std::deque<int>& a2, std::deque<int>& res) {
 //    static auto fft = NTTTransformer<long long, std::deque, 998244353>();
 //    size_t n1 = a1.size();
@@ -37,11 +37,9 @@
 //    }
 //}
 int main(){
-    auto test = NTTTransformer<>();
-    auto a1 = std::vector<long long>{9};
-    auto a2 = std::vector<long long>{1, 2};
-    for (auto i : test.process(a1, a2)) {
-        std::cout << i;
-    }
-    std::cout << '\n';
+    auto test = BigInteger<Transformer<>>(814743552);
+    auto test2 = BigInteger<Transformer<>>(100);
+    auto res = test * test2;
+
+    std::cout << res.to_string() << '\n';
 }

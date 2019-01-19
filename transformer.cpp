@@ -89,6 +89,7 @@ process(const Container<BaseType> &a1, const Container<BaseType> &a2) {
     transform(c1, n, Operation::INVERSE);
     for (int i = 0; i < n1 + n2 - 1; i++) res[i] = static_cast<BaseType>(c1[i].real());
     return res;
+
 }
 
 template<typename DataType,
@@ -196,13 +197,13 @@ void NTTTransformer<DataType, Container, MOD>::transform(Container<DataType> &a,
 template<typename DataType,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, DataType MOD>
 template<class BaseType>
-Container<DataType>
+Container<BaseType>
 NTTTransformer<DataType, Container, MOD>::process(const Container<BaseType> &a1, const Container<BaseType> &a2) {
     size_t n1 = a1.size();
     size_t n2 = a2.size();
     size_t n = 1;
     while (n < n1 + n2) n <<= 1;
-    auto res = Container<BaseType>(n);
+    auto res = Container<BaseType>(n1 + n2);
     static Container<DataType> c1(n), c2(n); // TODO: space management
     for (int i = 0; i < n1; i++) c1[i] = static_cast<DataType>(a1[i]);
     for (int i = 0; i < n2; i++) c2[i] = static_cast<DataType>(a2[i]);
