@@ -37,20 +37,20 @@
 //    }
 //}
 int main(){
-    auto test = BigInteger<FFTTransformer<>, 1000>(1);
+    auto test = BigInteger<FFTTransformer<>, 10, std::vector, long long>(711);
     auto test2 = BigInteger<FFTTransformer<>, 1000>(121212);
-    auto res = test * test2;
+    auto res1 = test * test;
+    auto res2 = res1 * test;
 
-    auto wtest = BigInteger<Transformer<>>(1);
+    auto wtest = BigInteger<Transformer<>>(711);
     auto wtest2 = BigInteger<Transformer<>>(-3525412421300);
-    auto wres = wtest * wtest2;
+    auto wres = wtest * wtest * wtest * wtest * wtest;
 
-    auto etest = BigInteger<NTTTransformer<>, 100000>(1);
-    auto etest2 = BigInteger<NTTTransformer<>, 100000>(-1020);
-    auto eres = etest * etest2;
+    auto etest = BigInteger<NTTTransformer<>, 10, std::vector, long long>(711);
+    auto etest2 = BigInteger<NTTTransformer<>, 1000>(121);
+    auto eres1 = etest * etest;
+    auto eres2 = eres1 * etest;
 
-    std::cout << wres.to_string() << '\n';
-    std::cout << res.to_string() << '\n';
-    std::cout << eres.to_string() << '\n';
-    std::cout << test.to_string() << '\n';
+    std::cout << eres2.to_string() << std::endl;
+    std::cout << res2.to_string() << std::endl;
 }

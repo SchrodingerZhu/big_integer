@@ -52,7 +52,7 @@ public:
 
 template<typename DataType = long long,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container = std::vector,
-        DataType MOD = 1000000007>
+        DataType MOD = 2013265921>
 class NTTTransformer : public Transformer<DataType, Container> {
     using Operation = typename Transformer<DataType, Container>::Operation;
 

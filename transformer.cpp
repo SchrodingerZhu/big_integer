@@ -74,13 +74,13 @@ template<typename DataType, template<typename _Tp, typename _Alloc = std::alloca
 template<class BaseType>
 Container<BaseType> FFTTransformer<DataType, Container>::
 process(const Container<BaseType> &a1, const Container<BaseType> &a2) {
-    static Container<DataType> c1{}, c2{}; // TODO: space management
+    // TODO: space management
     size_t n1 = a1.size();
     size_t n2 = a2.size();
     size_t n = 1;
     while (n < n1 + n2) n <<= 1;
     auto res = Container<BaseType>(n);
-    c1.resize(n), c2.resize(n);
+    Container<DataType> c1(n), c2(n);
     for (auto i = n1 - 1; i != -1; i--) c1[i].real(a1[i]);
     for (auto i = n2 - 1; i != -1; i--) c2[i].real(a2[i]);
     initialize_omegas(n);
@@ -160,11 +160,13 @@ constexpr DataType NTTTransformer<DataType, Container, MOD>::__inv(const DataTyp
 template<typename DataType,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, DataType MOD>
 void NTTTransformer<DataType, Container, MOD>::initialize_omegas(const size_t &n) {
+    this->access(0).clear();
+    this->access(1).clear();
     DataType g = __root(MOD);
     auto x = __pow(g, (MOD - 1) / n, MOD);
     for (int i = 0; i < n; ++i) {
-        this->access(0).emplace_back((i == 0) ? 1 : __multiply(this->access(0).back(), x, MOD));
-        this->access(1).emplace_back(std::move(__inv(this->access(0).back(), MOD)));
+        this->access(0).push_back((i == 0) ? 1 : __multiply(this->access(0).back(), x, MOD));
+        this->access(1).push_back(std::move(__inv(this->access(0).back(), MOD)));
     }
 }
 
@@ -200,14 +202,13 @@ template<typename DataType,
 template<class BaseType>
 Container<BaseType>
 NTTTransformer<DataType, Container, MOD>::process(const Container<BaseType> &a1, const Container<BaseType> &a2) {
-    static Container<DataType> c1{}, c2{}; // TODO: space management
+    // TODO: space management
     size_t n1 = a1.size();
     size_t n2 = a2.size();
     size_t n = 1;
     while (n < n1 + n2) n <<= 1;
-    auto res = Container<BaseType>(n1 + n2);
-    c1.resize(n);
-    c2.resize(n);
+    auto res = Container<BaseType>(n1 + n2 - 1);
+    Container<DataType> c1(n), c2(n);
     for (auto i = n1 - 1; i != -1; i--) c1[i] = static_cast<DataType>(a1[i]);
     for (auto i = n2 - 1; i != -1; i--) c2[i] = static_cast<DataType>(a2[i]);
     initialize_omegas(n);
