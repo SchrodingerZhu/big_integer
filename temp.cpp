@@ -46,11 +46,18 @@ int main(){
     auto wtest2 = BigInteger<Transformer<>>(-3525412421300);
     auto wres = wtest * wtest * wtest * wtest * wtest;
 
-    auto etest = BigInteger<NTTTransformer<>, 10, std::vector, long long>(711);
-    auto etest2 = BigInteger<NTTTransformer<>, 1000>(121);
-    auto eres1 = etest * etest;
-    auto eres2 = eres1 * etest;
+    auto a = BigInteger<NTTTransformer<>, 10000>(5);
 
-    std::cout << eres2.to_string() << std::endl;
-    std::cout << res2.to_string() << std::endl;
+
+    BigInteger<NTTTransformer<>, 10000> res = 1;
+    auto n = 125;
+    while (n) {
+        if (n & 1) {
+            res = res * a;
+        }
+        a = a * a;
+        n >>= 1;
+    }
+    std::cout << res.to_string() << std::endl;
+
 }

@@ -137,7 +137,7 @@ constexpr DataType NTTTransformer<DataType, Container, MOD>::__root(const DataTy
             return i;
         }
     }
-    throw std::runtime_error("failed to calculate the root, wrong data type?");
+    //throw std::runtime_error("failed to calculate the root, wrong data type?");
 }
 
 template<typename DataType,
@@ -160,13 +160,13 @@ constexpr DataType NTTTransformer<DataType, Container, MOD>::__inv(const DataTyp
 template<typename DataType,
         template<typename _Tp, typename _Alloc = std::allocator<_Tp>> typename Container, DataType MOD>
 void NTTTransformer<DataType, Container, MOD>::initialize_omegas(const size_t &n) {
+    static constexpr DataType g = __root(MOD);
     this->access(0).clear();
     this->access(1).clear();
-    DataType g = __root(MOD);
     auto x = __pow(g, (MOD - 1) / n, MOD);
     for (int i = 0; i < n; ++i) {
-        this->access(0).push_back((i == 0) ? 1 : __multiply(this->access(0).back(), x, MOD));
-        this->access(1).push_back(std::move(__inv(this->access(0).back(), MOD)));
+        this->access(0).emplace_back((i == 0) ? 1 : __multiply(this->access(0).back(), x, MOD));
+        this->access(1).emplace_back(std::move(__inv(this->access(0).back(), MOD)));
     }
 }
 
