@@ -46,11 +46,11 @@ int main(){
     auto wtest2 = BigInteger<Transformer<>>(-3525412421300);
     auto wres = wtest * wtest * wtest * wtest * wtest;
 
-    auto a = BigInteger<NTTTransformer<>, 10000>(5);
+    auto a = BigInteger<FFTTransformer<>, 10>(5);
 
 
-    BigInteger<NTTTransformer<>, 10000> res = 1;
-    auto n = 125;
+    BigInteger<FFTTransformer<>, 10> res = 1;
+    auto n = 200000;
     while (n) {
         if (n & 1) {
             res = res * a;

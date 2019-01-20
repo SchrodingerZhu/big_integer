@@ -139,7 +139,7 @@ BigInteger<Transformer, radix, Container, BaseType>::to_string() const {
         std::string temp{};
         auto num = *i;
         while (num) {
-            temp += '0' + (num % 10);
+            temp += ('0' + (num % 10));
             num /= 10;
         }
         while (!buffer.empty() && temp.size() < t) temp += "0";
